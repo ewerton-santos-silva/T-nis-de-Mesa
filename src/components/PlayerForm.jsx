@@ -102,6 +102,7 @@ const PlayerForm = ({ onAddPlayer, players, onDeletePlayer }) => {
                                 ref={fileInputRef}
                                 onChange={handlePhotoChange}
                                 accept="image/*"
+                                capture="environment"
                                 className="hidden"
                             />
                         </div>

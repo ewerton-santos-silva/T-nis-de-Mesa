@@ -10,9 +10,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'pwa-192x192.png', 'pwa-512x512.png'],
       manifest: {
-        name: 'Quinzenal Pong',
-        short_name: 'QPong',
-        description: 'Ranking de Tênis de Mesa - Round Quinzenal',
+        name: 'Pong Stars',
+        short_name: 'PStars',
+        description: 'Ranking de Tênis de Mesa - Pong Stars',
         theme_color: '#0076FF',
         background_color: '#121212',
         display: 'standalone',

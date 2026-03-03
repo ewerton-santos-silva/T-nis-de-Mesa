@@ -147,7 +147,7 @@ const App = () => {
             ⚙️
           </button>
           <h1 className="text-3xl font-black italic tracking-tighter text-white">
-            QUINZENAL <span className="text-[#0076FF]">PONG</span>
+            PONG <span className="text-[#0076FF]">STARS</span>
           </h1>
           <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">
             Round {archivedSessions.length + 14} • {competitionPeriod.start} - {competitionPeriod.end}
@@ -234,41 +234,42 @@ const App = () => {
               exit={{ scale: 0.9, opacity: 0 }}
               className="relative w-full bg-[#1E1E1E] rounded-[2rem] p-8 border border-white/5 shadow-2xl"
             >
-              <h2 className="text-xl font-black mb-6 uppercase tracking-tight">Configurações</h2>
+              <h2 className="text-xl font-black mb-6 uppercase tracking-tight">Período da Competição</h2>
 
               <div className="space-y-6 mb-10">
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Início da Competição</label>
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest px-1">Novo início</label>
                   <input
                     type="date"
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
-                    className="w-full bg-[#121212] border border-white/5 rounded-xl p-4 text-white font-bold"
+                    className="w-full bg-[#121212] border border-white/10 rounded-xl p-4 text-white font-bold focus:ring-2 focus:ring-[#0076FF]/50 outline-none"
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Fim da Competição</label>
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest px-1">Novo término</label>
                   <input
                     type="date"
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
-                    className="w-full bg-[#121212] border border-white/5 rounded-xl p-4 text-white font-bold"
+                    className="w-full bg-[#121212] border border-white/10 rounded-xl p-4 text-white font-bold focus:ring-2 focus:ring-[#0076FF]/50 outline-none"
                   />
                 </div>
               </div>
 
               <div className="space-y-3">
                 <button
-                  onClick={finalizeSeason}
-                  className="w-full bg-red-500 text-white font-black py-5 rounded-2xl shadow-xl shadow-red-500/10 uppercase tracking-widest text-xs"
-                >
-                  Finalizar Temporada
-                </button>
-                <button
                   onClick={() => setIsSettingsOpen(false)}
-                  className="w-full py-4 text-slate-500 font-bold text-xs uppercase tracking-widest hover:text-white transition-colors"
+                  className="w-full bg-[#0076FF] text-white font-black py-5 rounded-2xl shadow-xl shadow-[#0076FF]/20 uppercase tracking-widest text-xs"
                 >
-                  Fechar
+                  Confirmar Datas
+                </button>
+                <div className="h-[1px] bg-white/5 my-4" />
+                <button
+                  onClick={finalizeSeason}
+                  className="w-full bg-red-500/10 text-red-500 border border-red-500/20 font-black py-4 rounded-2xl uppercase tracking-widest text-[10px]"
+                >
+                  Finalizar Temporada Atual
                 </button>
               </div>
             </motion.div>
@@ -313,8 +314,8 @@ const App = () => {
       </AnimatePresence>
 
       <footer className="mt-8 mb-12 text-center">
-        <p className="text-[10px] font-bold uppercase tracking-widest text-slate-700">
-          Quinzenal Pong Engine v3.5 • 2024
+        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-700">
+          Pong Stars Engine v3.6 • 2024
         </p>
       </footer>
     </div>
