@@ -4,6 +4,8 @@ import Dashboard from './components/Dashboard';
 import MatchForm from './components/MatchForm';
 import MatchHistory from './components/MatchHistory';
 import PlayerForm from './components/PlayerForm';
+import SeasonArchive from './components/SeasonArchive';
+import { calculateSeasonStats } from './utils/stats';
 
 const INITIAL_PLAYERS = [
   { id: 1, name: 'Ewerton', avatar: '🏓', photo: null },
@@ -24,16 +26,37 @@ const App = () => {
     return saved ? JSON.parse(saved) : [];
   });
 
+  const [archivedSessions, setArchivedSessions] = useState(() => {
+    const saved = localStorage.getItem('tm_archived_sessions');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const [startDate, setStartDate] = useState(() => {
+    const saved = localStorage.getItem('tm_start_date');
+    if (saved) return saved;
+    const now = new Date();
+    return new Date(now.getFullYear(), now.getMonth(), now.getDate() <= 15 ? 1 : 16).toISOString().split('T')[0];
+  });
+
+  const [endDate, setEndDate] = useState(() => {
+    const saved = localStorage.getItem('tm_end_date');
+    if (saved) return saved;
+    const now = new Date();
+    const isFirstHalf = now.getDate() <= 15;
+    return new Date(now.getFullYear(), now.getMonth(), isFirstHalf ? 15 : new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()).toISOString().split('T')[0];
+  });
+
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isMatchFormOpen, setIsMatchFormOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   useEffect(() => {
     localStorage.setItem('tm_players', JSON.stringify(players));
-  }, [players]);
-
-  useEffect(() => {
     localStorage.setItem('tm_matches', JSON.stringify(matches));
-  }, [matches]);
+    localStorage.setItem('tm_archived_sessions', JSON.stringify(archivedSessions));
+    localStorage.setItem('tm_start_date', startDate);
+    localStorage.setItem('tm_end_date', endDate);
+  }, [players, matches, archivedSessions, startDate, endDate]);
 
   const addPlayer = (newPlayer) => {
     const player = { ...newPlayer, id: Date.now() };
@@ -56,23 +79,57 @@ const App = () => {
     setIsMatchFormOpen(false);
   };
 
+  const finalizeSeason = () => {
+    if (matches.length === 0) {
+      alert("Não há partidas para arquivar!");
+      return;
+    }
+
+    if (!window.confirm("Deseja FINALIZAR a temporada atual? Isso irá arquivar os resultados e zerar o ranking.")) return;
+
+    const stats = calculateSeasonStats(matches, players);
+    const newSession = {
+      id: Date.now(),
+      startDate: new Date(startDate).toLocaleDateString('pt-BR'),
+      endDate: new Date(endDate).toLocaleDateString('pt-BR'),
+      matches: matches,
+      winners: {
+        mele: stats.mele,
+        exterminador: stats.exterminador
+      }
+    };
+
+    setArchivedSessions([newSession, ...archivedSessions]);
+    setMatches([]);
+
+    // Set next period (roughly)
+    const nextStart = new Date(endDate);
+    nextStart.setDate(nextStart.getDate() + 1);
+    const nextEnd = new Date(nextStart);
+    nextEnd.setDate(nextEnd.getDate() + 14);
+
+    setStartDate(nextStart.toISOString().split('T')[0]);
+    setEndDate(nextEnd.toISOString().split('T')[0]);
+    setIsSettingsOpen(false);
+    setActiveTab('seasons');
+  };
+
   const competitionPeriod = useMemo(() => {
     const now = new Date();
-    const day = now.getDate();
-    const month = now.getMonth();
-    const year = now.getFullYear();
+    const end = new Date(endDate);
+    const diff = (end.getTime() - now.getTime()) / (1000 * 3600 * 24);
 
-    const startDay = day <= 15 ? 1 : 16;
-    const endDay = day <= 15 ? 15 : new Date(year, month + 1, 0).getDate();
-
-    const formatDate = (d) => d.toString().padStart(2, '0') + '/' + (month + 1).toString().padStart(2, '0');
+    const format = (iso) => {
+      const d = new Date(iso);
+      return d.getDate().toString().padStart(2, '0') + '/' + (d.getMonth() + 1).toString().padStart(2, '0');
+    };
 
     return {
-      start: formatDate(startDay),
-      end: formatDate(endDay),
-      isEnding: (endDay - day) <= 2 && (endDay - day) >= 0
+      start: format(startDate),
+      end: format(endDate),
+      isEnding: diff <= 2 && diff >= 0
     };
-  }, []);
+  }, [startDate, endDate]);
 
   return (
     <div className="min-h-screen text-slate-100 font-sans max-w-md mx-auto relative pb-24">
@@ -82,35 +139,38 @@ const App = () => {
         animate={{ y: 0, opacity: 1 }}
         className="pt-8 pb-4 px-6 sticky top-0 bg-[#121212]/80 backdrop-blur-md z-40"
       >
-        <div className="flex flex-col items-center mb-6">
+        <div className="flex flex-col items-center mb-6 relative">
+          <button
+            onClick={() => setIsSettingsOpen(true)}
+            className="absolute right-0 top-1 text-slate-600 hover:text-white transition-colors p-2"
+          >
+            ⚙️
+          </button>
           <h1 className="text-3xl font-black italic tracking-tighter text-white">
             QUINZENAL <span className="text-[#0076FF]">PONG</span>
           </h1>
           <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">
-            Round 14 • {competitionPeriod.start} - {competitionPeriod.end}
+            Round {archivedSessions.length + 14} • {competitionPeriod.start} - {competitionPeriod.end}
           </span>
         </div>
 
         {/* Tabs */}
-        <div className="flex justify-center gap-8 border-b border-white/5">
-          <button
-            onClick={() => setActiveTab('dashboard')}
-            className={`pb-2 text-sm font-bold transition-all ${activeTab === 'dashboard' ? 'tab-active' : 'text-slate-500'}`}
-          >
-            Dashboard
-          </button>
-          <button
-            onClick={() => setActiveTab('history')}
-            className={`pb-2 text-sm font-bold transition-all ${activeTab === 'history' ? 'tab-active' : 'text-slate-500'}`}
-          >
-            Histórico
-          </button>
+        <div className="flex justify-between items-center border-b border-white/5 px-2">
+          {['dashboard', 'history', 'seasons'].map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`pb-2 text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === tab ? 'text-[#0076FF] border-b-2 border-[#0076FF]' : 'text-slate-500'}`}
+            >
+              {tab === 'dashboard' ? 'Dashboard' : tab === 'history' ? 'Histórico' : 'Temporadas'}
+            </button>
+          ))}
         </div>
       </motion.header>
 
       <main className="px-4 py-6">
         <AnimatePresence mode="wait">
-          {activeTab === 'dashboard' ? (
+          {activeTab === 'dashboard' && (
             <motion.div
               key="dashboard"
               initial={{ opacity: 0, x: -10 }}
@@ -131,7 +191,9 @@ const App = () => {
                 />
               </div>
             </motion.div>
-          ) : (
+          )}
+
+          {activeTab === 'history' && (
             <motion.div
               key="history"
               initial={{ opacity: 0, x: 10 }}
@@ -141,8 +203,78 @@ const App = () => {
               <MatchHistory matches={matches} players={players} />
             </motion.div>
           )}
+
+          {activeTab === 'seasons' && (
+            <motion.div
+              key="seasons"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+            >
+              <SeasonArchive sessions={archivedSessions} />
+            </motion.div>
+          )}
         </AnimatePresence>
       </main>
+
+      {/* Settings Modal */}
+      <AnimatePresence>
+        {isSettingsOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsSettingsOpen(false)}
+              className="absolute inset-0 bg-black/90 backdrop-blur-xl"
+            />
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="relative w-full bg-[#1E1E1E] rounded-[2rem] p-8 border border-white/5 shadow-2xl"
+            >
+              <h2 className="text-xl font-black mb-6 uppercase tracking-tight">Configurações</h2>
+
+              <div className="space-y-6 mb-10">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Início da Competição</label>
+                  <input
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="w-full bg-[#121212] border border-white/5 rounded-xl p-4 text-white font-bold"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Fim da Competição</label>
+                  <input
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="w-full bg-[#121212] border border-white/5 rounded-xl p-4 text-white font-bold"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <button
+                  onClick={finalizeSeason}
+                  className="w-full bg-red-500 text-white font-black py-5 rounded-2xl shadow-xl shadow-red-500/10 uppercase tracking-widest text-xs"
+                >
+                  Finalizar Temporada
+                </button>
+                <button
+                  onClick={() => setIsSettingsOpen(false)}
+                  className="w-full py-4 text-slate-500 font-bold text-xs uppercase tracking-widest hover:text-white transition-colors"
+                >
+                  Fechar
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* Floating Action Button */}
       <motion.button
@@ -182,7 +314,7 @@ const App = () => {
 
       <footer className="mt-8 mb-12 text-center">
         <p className="text-[10px] font-bold uppercase tracking-widest text-slate-700">
-          Quinzenal Pong Engine v3.0
+          Quinzenal Pong Engine v3.5 • 2024
         </p>
       </footer>
     </div>

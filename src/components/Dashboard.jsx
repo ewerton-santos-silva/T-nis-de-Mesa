@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
+import { calculateSeasonStats } from '../utils/stats';
 
 const PlayerAvatar = ({ player, size = "md", borderClass = "" }) => {
     const sizeClasses = {
@@ -21,57 +22,9 @@ const PlayerAvatar = ({ player, size = "md", borderClass = "" }) => {
 };
 
 const Dashboard = ({ matches, players, period }) => {
-    const getBiweeklyMatches = (allMatches) => {
-        const now = new Date();
-        const currentDay = now.getDate();
-        const currentMonth = now.getMonth();
-        const currentYear = now.getFullYear();
-
-        return allMatches.filter(m => {
-            const matchDate = new Date(m.date);
-            const isSameMonth = matchDate.getMonth() === currentMonth && matchDate.getFullYear() === currentYear;
-            if (!isSameMonth) return false;
-
-            const matchDay = matchDate.getDate();
-            if (currentDay <= 15) return matchDay <= 15;
-            return matchDay > 15;
-        });
-    };
-
-    const currentMatches = getBiweeklyMatches(matches);
-
-    const stats = players.reduce((acc, player) => {
-        acc[player.id] = {
-            id: player.id,
-            winsZero: 0,
-            lossesZero: 0,
-            name: player.name,
-            avatar: player.avatar,
-            photo: player.photo
-        };
-        return acc;
-    }, {});
-
-    currentMatches.forEach(match => {
-        if (match.score1 === 0) {
-            stats[match.player1Id].lossesZero += 1;
-            stats[match.player2Id].winsZero += 1;
-        }
-        if (match.score2 === 0) {
-            stats[match.player2Id].lossesZero += 1;
-            stats[match.player1Id].winsZero += 1;
-        }
-    });
-
-    const sortedByLosses = Object.values(stats).sort((a, b) => b.lossesZero - a.lossesZero);
-    const sortedByWins = Object.values(stats).sort((a, b) => b.winsZero - a.winsZero);
-
-    const mele = sortedByLosses[0]?.lossesZero > 0 ? sortedByLosses[0] : null;
-    const viceMele = sortedByLosses[1]?.lossesZero > 0 ? sortedByLosses[1] : null;
-    const exterminador = sortedByWins[0]?.winsZero > 0 ? sortedByWins[0] : null;
-
-    // Overall ranking for the bottom list
-    const ranking = Object.values(stats).sort((a, b) => b.winsZero - a.winsZero);
+    const { mele, viceMele, exterminador, ranking } = useMemo(() => {
+        return calculateSeasonStats(matches, players);
+    }, [matches, players]);
 
     return (
         <div className="space-y-10">
@@ -88,7 +41,9 @@ const Dashboard = ({ matches, players, period }) => {
                             <span className="absolute -top-4 text-2xl">👑</span>
                             <PlayerAvatar player={exterminador} size="md" />
                             <h4 className="text-[10px] font-black uppercase mt-3 tracking-tighter truncate w-full text-center">{exterminador.name}</h4>
-                            <p className="text-[#FFD700] text-[9px] font-bold mt-1">{exterminador.winsZero} Vitórias de 0</p>
+                            <p className="text-[#FFD700] text-[9px] font-bold mt-1 text-center leading-tight">
+                                {exterminador.winsZero} <br /> Vitórias 0
+                            </p>
                         </motion.div>
                     )}
                 </div>
@@ -128,7 +83,9 @@ const Dashboard = ({ matches, players, period }) => {
                             <span className="absolute -top-3 text-lg opacity-50">🥈</span>
                             <PlayerAvatar player={viceMele} size="md" />
                             <h4 className="text-[10px] font-black uppercase mt-3 tracking-tighter truncate w-full text-center">{viceMele.name}</h4>
-                            <p className="text-[#8B0000] text-[9px] font-bold mt-1">{viceMele.lossesZero} Derrotas de 0</p>
+                            <p className="text-[#8B0000] text-[9px] font-bold mt-1 text-center leading-tight">
+                                {viceMele.lossesZero} <br /> Derrotas 0
+                            </p>
                         </motion.div>
                     )}
                 </div>
@@ -137,7 +94,7 @@ const Dashboard = ({ matches, players, period }) => {
             {/* Ranking List */}
             <div className="bg-[#1E1E1E] rounded-[2rem] p-6 border border-white/5">
                 <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 mb-6 px-2 flex items-center justify-between">
-                    Ranking Geral Quinzenal
+                    Ranking Geral Temporada
                     <span className="bg-[#121212] px-2 py-1 rounded text-white/30 tracking-normal">{ranking.length} Atletas</span>
                 </h3>
 
