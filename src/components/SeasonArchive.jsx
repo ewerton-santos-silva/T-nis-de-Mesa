@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-const SeasonArchive = ({ sessions }) => {
+const SeasonArchive = ({ sessions, onDeleteSession }) => {
     if (sessions.length === 0) {
         return (
             <div className="py-20 flex flex-col items-center justify-center opacity-20">
@@ -19,11 +19,19 @@ const SeasonArchive = ({ sessions }) => {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.05 }}
-                    className="bg-[#1E1E1E] rounded-3xl p-6 border border-white/5 shadow-xl relative overflow-hidden"
+                    className="bg-[#1E1E1E] rounded-3xl p-6 border border-white/5 shadow-xl relative overflow-hidden group"
                 >
-                    <div className="absolute top-0 right-0 p-4 opacity-5">
+                    <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
                         <span className="text-4xl">🏆</span>
                     </div>
+
+                    <button
+                        onClick={() => onDeleteSession(session.id)}
+                        className="absolute top-4 right-4 p-2 bg-red-500/10 text-red-500 rounded-xl opacity-0 group-hover:opacity-100 transition-all hover:bg-red-500 text-white border border-red-500/20 z-10"
+                        title="Excluir Temporada"
+                    >
+                        <span className="text-xs">🗑️</span>
+                    </button>
 
                     <div className="flex justify-between items-start mb-6">
                         <div>

@@ -111,7 +111,7 @@ const App = () => {
     setRound(prev => prev + 1);
 
     // Set next period (roughly)
-    const nextStart = new Date(endDate);
+    const nextStart = new Date(endDate + 'T12:00:00');
     nextStart.setDate(nextStart.getDate() + 1);
     const nextEnd = new Date(nextStart);
     nextEnd.setDate(nextEnd.getDate() + 14);
@@ -122,14 +122,20 @@ const App = () => {
     setActiveTab('seasons');
   };
 
+  const deleteSession = (sessionId) => {
+    if (window.confirm('Excluir esta temporada permanentemente?')) {
+      setArchivedSessions(prev => prev.filter(s => s.id !== sessionId));
+    }
+  };
+
   const competitionPeriod = useMemo(() => {
     const now = new Date();
-    const end = new Date(endDate);
+    const end = new Date(endDate + 'T23:59:59');
     const diff = (end.getTime() - now.getTime()) / (1000 * 3600 * 24);
 
     const format = (iso) => {
-      const d = new Date(iso);
-      return d.getDate().toString().padStart(2, '0') + '/' + (d.getMonth() + 1).toString().padStart(2, '0');
+      const [year, month, day] = iso.split('-');
+      return `${day}/${month}`;
     };
 
     return {
@@ -226,7 +232,7 @@ const App = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
             >
-              <SeasonArchive sessions={archivedSessions} />
+              <SeasonArchive sessions={archivedSessions} onDeleteSession={deleteSession} />
             </motion.div>
           )}
         </AnimatePresence>
