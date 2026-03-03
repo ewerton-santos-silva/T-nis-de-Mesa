@@ -31,6 +31,11 @@ const App = () => {
     return saved ? JSON.parse(saved) : [];
   });
 
+  const [round, setRound] = useState(() => {
+    const saved = localStorage.getItem('tm_round');
+    return saved ? parseInt(saved) : (archivedSessions.length + 14);
+  });
+
   const [startDate, setStartDate] = useState(() => {
     const saved = localStorage.getItem('tm_start_date');
     if (saved) return saved;
@@ -56,7 +61,8 @@ const App = () => {
     localStorage.setItem('tm_archived_sessions', JSON.stringify(archivedSessions));
     localStorage.setItem('tm_start_date', startDate);
     localStorage.setItem('tm_end_date', endDate);
-  }, [players, matches, archivedSessions, startDate, endDate]);
+    localStorage.setItem('tm_round', round.toString());
+  }, [players, matches, archivedSessions, startDate, endDate, round]);
 
   const addPlayer = (newPlayer) => {
     const player = { ...newPlayer, id: Date.now() };
@@ -90,6 +96,7 @@ const App = () => {
     const stats = calculateSeasonStats(matches, players);
     const newSession = {
       id: Date.now(),
+      round: round,
       startDate: new Date(startDate).toLocaleDateString('pt-BR'),
       endDate: new Date(endDate).toLocaleDateString('pt-BR'),
       matches: matches,
@@ -101,6 +108,7 @@ const App = () => {
 
     setArchivedSessions([newSession, ...archivedSessions]);
     setMatches([]);
+    setRound(prev => prev + 1);
 
     // Set next period (roughly)
     const nextStart = new Date(endDate);
@@ -142,16 +150,23 @@ const App = () => {
         <div className="flex flex-col items-center mb-6 relative">
           <button
             onClick={() => setIsSettingsOpen(true)}
-            className="absolute right-0 top-1 text-slate-600 hover:text-white transition-colors p-2"
+            className="absolute right-0 top-1 bg-white/5 hover:bg-white/10 text-white transition-colors p-3 rounded-xl border border-white/5"
+            title="Configurações"
           >
             ⚙️
           </button>
           <h1 className="text-3xl font-black italic tracking-tighter text-white">
             PONG <span className="text-[#0076FF]">STARS</span>
           </h1>
-          <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">
-            Round {archivedSessions.length + 14} • {competitionPeriod.start} - {competitionPeriod.end}
-          </span>
+          <button
+            onClick={() => setIsSettingsOpen(true)}
+            className="mt-1 flex flex-col items-center group"
+          >
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 group-hover:text-[#0076FF] transition-colors">
+              Round {round} • {competitionPeriod.start} - {competitionPeriod.end}
+            </span>
+            <span className="text-[8px] font-bold text-[#0076FF] opacity-0 group-hover:opacity-100 transition-opacity uppercase mt-0.5">Clique para Editar</span>
+          </button>
         </div>
 
         {/* Tabs */}
@@ -234,26 +249,38 @@ const App = () => {
               exit={{ scale: 0.9, opacity: 0 }}
               className="relative w-full bg-[#1E1E1E] rounded-[2rem] p-8 border border-white/5 shadow-2xl"
             >
-              <h2 className="text-xl font-black mb-6 uppercase tracking-tight">Período da Competição</h2>
+              <h2 className="text-2xl font-black mb-8 uppercase tracking-tight">Competição</h2>
 
               <div className="space-y-6 mb-10">
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest px-1">Novo início</label>
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest px-1">Número do Round</label>
                   <input
-                    type="date"
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                    className="w-full bg-[#121212] border border-white/10 rounded-xl p-4 text-white font-bold focus:ring-2 focus:ring-[#0076FF]/50 outline-none"
+                    type="number"
+                    value={round}
+                    onChange={(e) => setRound(parseInt(e.target.value) || 0)}
+                    className="w-full bg-[#121212] border border-white/10 rounded-xl p-4 text-white font-black text-xl focus:ring-2 focus:ring-[#0076FF]/50 outline-none"
                   />
                 </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest px-1">Novo término</label>
-                  <input
-                    type="date"
-                    value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
-                    className="w-full bg-[#121212] border border-white/10 rounded-xl p-4 text-white font-bold focus:ring-2 focus:ring-[#0076FF]/50 outline-none"
-                  />
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest px-1">Início</label>
+                    <input
+                      type="date"
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      className="w-full bg-[#121212] border border-white/10 rounded-xl p-4 text-white font-bold focus:ring-2 focus:ring-[#0076FF]/50 outline-none text-xs"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest px-1">Término</label>
+                    <input
+                      type="date"
+                      value={endDate}
+                      onChange={(e) => setEndDate(e.target.value)}
+                      className="w-full bg-[#121212] border border-white/10 rounded-xl p-4 text-white font-bold focus:ring-2 focus:ring-[#0076FF]/50 outline-none text-xs"
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -262,14 +289,14 @@ const App = () => {
                   onClick={() => setIsSettingsOpen(false)}
                   className="w-full bg-[#0076FF] text-white font-black py-5 rounded-2xl shadow-xl shadow-[#0076FF]/20 uppercase tracking-widest text-xs"
                 >
-                  Confirmar Datas
+                  Confirmar Ajustes
                 </button>
                 <div className="h-[1px] bg-white/5 my-4" />
                 <button
                   onClick={finalizeSeason}
                   className="w-full bg-red-500/10 text-red-500 border border-red-500/20 font-black py-4 rounded-2xl uppercase tracking-widest text-[10px]"
                 >
-                  Finalizar Temporada Atual
+                  Finalizar & Arquivar Round
                 </button>
               </div>
             </motion.div>

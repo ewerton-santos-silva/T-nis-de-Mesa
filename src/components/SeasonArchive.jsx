@@ -27,7 +27,9 @@ const SeasonArchive = ({ sessions }) => {
 
                     <div className="flex justify-between items-start mb-6">
                         <div>
-                            <h3 className="text-lg font-black tracking-tighter text-white">Temporada #{sessions.length - index}</h3>
+                            <h3 className="text-lg font-black tracking-tighter text-white">
+                                {session.round ? `Round ${session.round}` : `Temporada #${sessions.length - index}`}
+                            </h3>
                             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">
                                 {session.startDate} — {session.endDate}
                             </p>
