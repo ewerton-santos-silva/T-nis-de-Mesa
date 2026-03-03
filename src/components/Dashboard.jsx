@@ -112,7 +112,7 @@ const Dashboard = ({ matches, players, period }) => {
                     ) : (
                         <div className="bg-[#1E1E1E]/50 rounded-[2.5rem] p-10 border-2 border-dashed border-white/5 flex flex-col items-center">
                             <span className="text-4xl opacity-20 mb-4">🏓</span>
-                            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 text-center">Aguardando o primeiro pneu...</p>
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 text-center">Aguardando o primeiro melé...</p>
                         </div>
                     )}
                 </div>
