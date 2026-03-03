@@ -1,0 +1,110 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap');
+
+:root {
+  --blue-electric: #0076FF;
+  --charcoal-gray: #121212;
+  --charcoal-light: #1E1E1E;
+  --gold-main: #FFD700;
+  --red-melee: #FF3B30;
+  --red-vice: #8B0000;
+
+  font-family: 'Outfit', 'Inter', system-ui, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: dark;
+  color: rgba(255, 255, 255, 0.95);
+  background-color: var(--charcoal-gray);
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background-color: var(--charcoal-gray);
+  background-image: radial-gradient(circle at top right, rgba(0, 118, 255, 0.05), transparent),
+    radial-gradient(circle at bottom left, rgba(255, 59, 48, 0.05), transparent);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--charcoal-gray);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--charcoal-light);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #2A2A2A;
+}
+
+/* Glassmorphism utility */
+.glass {
+  background: rgba(30, 30, 30, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Special Card Effects */
+.melee-glow {
+  box-shadow: 0 0 30px rgba(255, 59, 48, 0.2);
+  border: 2px solid var(--red-melee);
+}
+
+.exterminador-border {
+  border: 2px solid var(--gold-main);
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.1);
+}
+
+.vice-melee-border {
+  border: 2px solid var(--red-vice);
+}
+
+/* Animations */
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.tab-active {
+  color: var(--blue-electric);
+  position: relative;
+}
+
+.tab-active::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: var(--blue-electric);
+  border-radius: 2px;
+}
