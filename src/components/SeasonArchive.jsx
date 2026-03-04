@@ -27,7 +27,7 @@ const SeasonArchive = ({ sessions, onDeleteSession }) => {
 
                     <button
                         onClick={() => onDeleteSession(session.id)}
-                        className="absolute top-4 right-4 p-2 bg-red-500/10 text-red-500 rounded-xl opacity-0 group-hover:opacity-100 transition-all hover:bg-red-500 text-white border border-red-500/20 z-10"
+                        className="absolute top-4 right-4 p-2 bg-red-500/10 text-red-500 rounded-xl transition-all hover:bg-red-500 hover:text-white border border-red-500/20 z-10 sm:opacity-0 sm:group-hover:opacity-100"
                         title="Excluir Temporada"
                     >
                         <span className="text-xs">🗑️</span>
