@@ -20,8 +20,8 @@ const PlayerForm = ({ onAddPlayer, players, onDeletePlayer }) => {
                 img.onload = () => {
                     // Create canvas for compression
                     const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 200;
-                    const MAX_HEIGHT = 200;
+                    const MAX_WIDTH = 66;
+                    const MAX_HEIGHT = 66;
                     let width = img.width;
                     let height = img.height;
 
