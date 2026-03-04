@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import PlayerAvatar from './PlayerAvatar';
 
 const PlayerForm = ({ onAddPlayer, players, onDeletePlayer }) => {
     const [name, setName] = useState('');
@@ -75,13 +76,7 @@ const PlayerForm = ({ onAddPlayer, players, onDeletePlayer }) => {
                         className="bg-[#1E1E1E] p-3 rounded-2xl flex items-center justify-between border border-white/5 shadow-lg"
                     >
                         <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 rounded-full bg-[#121212] overflow-hidden flex items-center justify-center border border-white/10 shrink-0">
-                                {player.photo ? (
-                                    <img src={player.photo} alt={player.name} className="w-full h-full object-cover" />
-                                ) : (
-                                    <span className="text-xl">{player.avatar}</span>
-                                )}
-                            </div>
+                            <PlayerAvatar player={player} size="md" />
                             <span className="font-bold text-sm tracking-tight">{player.name}</span>
                         </div>
                         <button
@@ -116,15 +111,15 @@ const PlayerForm = ({ onAddPlayer, players, onDeletePlayer }) => {
                         <div className="flex flex-col items-center gap-4">
                             <div
                                 onClick={() => fileInputRef.current.click()}
-                                className="w-24 h-24 rounded-full bg-[#121212] border-2 border-dashed border-white/10 flex items-center justify-center overflow-hidden cursor-pointer hover:border-[#0076FF]/50 transition-colors"
+                                className="cursor-pointer hover:opacity-80 transition-opacity"
                             >
-                                {preview ? (
-                                    <img src={preview} alt="Preview" className="w-full h-full object-cover" />
-                                ) : (
-                                    <div className="flex flex-col items-center">
-                                        <span className="text-2xl opacity-50">📸</span>
-                                        <span className="text-[8px] font-black uppercase opacity-30 mt-1">Foto</span>
-                                    </div>
+                                <PlayerAvatar
+                                    player={{ photo: preview || photo, name: 'Preview', avatar: '📸' }}
+                                    size="lg"
+                                    borderClass="border-2 border-dashed border-white/20 !bg-transparent"
+                                />
+                                {!preview && !photo && (
+                                    <span className="text-[8px] font-black uppercase opacity-30 mt-1 block text-center">Foto</span>
                                 )}
                             </div>
                             <input

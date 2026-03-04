@@ -1,25 +1,7 @@
 import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { calculateSeasonStats } from '../utils/stats';
-
-const PlayerAvatar = ({ player, size = "md", borderClass = "" }) => {
-    const sizeClasses = {
-        sm: "w-8 h-8 text-xs",
-        md: "w-12 h-12 text-xl",
-        lg: "w-20 h-20 text-3xl",
-        xl: "w-28 h-28 text-5xl"
-    };
-
-    return (
-        <div className={`${sizeClasses[size]} rounded-full bg-[#121212] overflow-hidden flex items-center justify-center border border-white/10 shrink-0 ${borderClass}`}>
-            {player.photo ? (
-                <img src={player.photo} alt={player.name} className="w-full h-full object-cover" />
-            ) : (
-                <span>{player.avatar || '👤'}</span>
-            )}
-        </div>
-    );
-};
+import PlayerAvatar from './PlayerAvatar';
 
 const Dashboard = ({ matches, players, period }) => {
     const { mele, viceMele, exterminador, ranking } = useMemo(() => {

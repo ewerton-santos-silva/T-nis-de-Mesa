@@ -1,15 +1,14 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import PlayerAvatar from './PlayerAvatar';
 
 const PlayerIdentity = ({ player, isWinner }) => (
     <div className="flex flex-col items-center gap-2">
-        <div className={`w-12 h-12 rounded-full bg-[#121212] overflow-hidden flex items-center justify-center border-2 transition-all ${isWinner ? 'border-[#0076FF] scale-110 shadow-lg' : 'border-white/5 opacity-40 grayscale'}`}>
-            {player.photo ? (
-                <img src={player.photo} alt={player.name} className="w-full h-full object-cover" />
-            ) : (
-                <span className="text-xl">{player.avatar || '👤'}</span>
-            )}
-        </div>
+        <PlayerAvatar
+            player={player}
+            size="md"
+            borderClass={isWinner ? 'border-[#0076FF] scale-110 shadow-lg !border-2' : 'border-white/5 opacity-40 grayscale !border-2'}
+        />
         <span className={`text-[8px] font-black uppercase tracking-tighter truncate w-16 text-center ${isWinner ? 'text-white' : 'text-slate-600'}`}>
             {player.name}
         </span>
