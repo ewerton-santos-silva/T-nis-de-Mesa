@@ -21,8 +21,8 @@ const PlayerForm = ({ onAddPlayer, players, onDeletePlayer }) => {
                 img.onload = () => {
                     // Create canvas for compression
                     const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 66;
-                    const MAX_HEIGHT = 66;
+                    const MAX_WIDTH = 500;
+                    const MAX_HEIGHT = 500;
                     let width = img.width;
                     let height = img.height;
 
@@ -44,7 +44,7 @@ const PlayerForm = ({ onAddPlayer, players, onDeletePlayer }) => {
                     ctx.drawImage(img, 0, 0, width, height);
 
                     // Compress to JPG for better storage efficiency
-                    const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+                    const compressedBase64 = canvas.toDataURL('image/jpeg', 0.9);
                     setPhoto(compressedBase64);
                     setPreview(compressedBase64);
                 };
