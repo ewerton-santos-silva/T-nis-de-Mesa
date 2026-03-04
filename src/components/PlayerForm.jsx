@@ -16,8 +16,38 @@ const PlayerForm = ({ onAddPlayer, players, onDeletePlayer }) => {
         if (file) {
             const reader = new FileReader();
             reader.onloadend = () => {
-                setPhoto(reader.result);
-                setPreview(reader.result);
+                const img = new Image();
+                img.onload = () => {
+                    // Create canvas for compression
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 200;
+                    const MAX_HEIGHT = 200;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH;
+                        }
+                    } else {
+                        if (height > MAX_HEIGHT) {
+                            width *= MAX_HEIGHT / height;
+                            height = MAX_HEIGHT;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // Compress to JPG for better storage efficiency
+                    const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+                    setPhoto(compressedBase64);
+                    setPreview(compressedBase64);
+                };
+                img.src = reader.result;
             };
             reader.readAsDataURL(file);
         }
@@ -45,7 +75,7 @@ const PlayerForm = ({ onAddPlayer, players, onDeletePlayer }) => {
                         className="bg-[#1E1E1E] p-3 rounded-2xl flex items-center justify-between border border-white/5 shadow-lg"
                     >
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-[#121212] overflow-hidden flex items-center justify-center border border-white/10">
+                            <div className="w-12 h-12 rounded-full bg-[#121212] overflow-hidden flex items-center justify-center border border-white/10 shrink-0">
                                 {player.photo ? (
                                     <img src={player.photo} alt={player.name} className="w-full h-full object-cover" />
                                 ) : (
